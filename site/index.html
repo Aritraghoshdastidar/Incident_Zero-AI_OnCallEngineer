@@ -19,22 +19,32 @@
 </head>
 <body>
 
+<div class="mast-bar">
 <header class="mast">
   <a class="wordmark" href="#top">Incident Zero</a>
   <nav aria-label="Sections">
     <a href="#replay">Replay an incident</a>
+    <a href="#pipeline">How it works</a>
     <a href="#noise">The loudest error</a>
     <a href="#trick">Try to trick it</a>
     <a href="#scorecard">Scorecard</a>
     <a href="#run">Run it</a>
+    <a class="gh" href="https://github.com/Aritraghoshdastidar/Incident_Zero-AI_OnCallEngineer">Source on GitHub</a>
   </nav>
 </header>
+</div>
 
 <main id="top">
 
 <section class="opening" aria-labelledby="h1">
   <h1 id="h1">Pick a failure. Watch the agent find it, then approve the fix or stop it.</h1>
   <p class="lede">An AI on-call engineer for the OpenTelemetry Demo shop. It reads metrics, traces and container state, names the cause with its evidence, and can only act through a short list of approved runbooks. Nothing runs until a person says so.</p>
+  <div class="proof" role="group" aria-label="Headline results">
+    <p><b>4 of 4</b>infrastructure failures it was never tuned on, found and fixed</p>
+    <p><b>0</b>wrong actions, where a plain language model reading raw logs took 3</p>
+    <p><b>7 of 7</b>hostile instructions planted in error messages, resisted</p>
+  </div>
+  <p class="fine proof-note">Small samples on one laptop with a free-tier model. The scorecard below shows the misses too.</p>
 </section>
 
 <section id="replay" class="replay" aria-labelledby="replay-h">
@@ -85,6 +95,31 @@
   </div>
 
   <p class="fine">Timings come from the recorded runs. In these recordings a test script approved the fix; here you do. The injection time is inferred from the test harness, which waits a fixed time after breaking something.</p>
+</section>
+
+<section id="pipeline" class="pipeline" aria-labelledby="pipeline-h">
+  <div class="text wide">
+    <h2 id="pipeline-h">How it works</h2>
+    <p>Every incident takes the same route. The left side only reads. The model reasons in the middle. Plain programs and a person stand between any idea and any action. Click a stage to see what it does, or trace an incident yourself and choose what happens at each decision.</p>
+  </div>
+
+  <div class="pl-wrap">
+    <div class="pl-scroll"><svg id="pl-svg" role="group" aria-label="The incident pipeline. Each stage is a button." viewBox="0 0 1100 596" preserveAspectRatio="xMidYMid meet"></svg></div>
+  </div>
+
+  <div class="pl-below">
+    <div class="pl-detail" id="pl-detail" aria-live="polite"></div>
+    <div class="pl-trace">
+      <p class="label">Trace an incident</p>
+      <p class="pl-narr" id="pl-narr">Follow one incident through the pipeline. When it reaches a decision, you choose the branch.</p>
+      <div class="pl-choices" id="pl-choices"></div>
+      <div class="pl-actions">
+        <button id="pl-go" class="btn primary" type="button">Trace an incident</button>
+        <button id="pl-reset" class="btn" type="button">Reset</button>
+      </div>
+      <p class="pl-path" id="pl-path"></p>
+    </div>
+  </div>
 </section>
 
 <section id="noise" class="noise" aria-labelledby="noise-h">
@@ -187,6 +222,11 @@ echo GEMINI_API_KEY=your-key > .env
 </main>
 
 <footer class="foot">
+  <nav class="foot-links" aria-label="Project links">
+    <a href="https://github.com/Aritraghoshdastidar/Incident_Zero-AI_OnCallEngineer">Source code</a>
+    <a href="https://github.com/Aritraghoshdastidar/Incident_Zero-AI_OnCallEngineer/blob/main/docs/RESULTS.md">Results and method</a>
+    <a href="https://github.com/Aritraghoshdastidar/Incident_Zero-AI_OnCallEngineer/blob/main/LICENSE">MIT license</a>
+  </nav>
   <p>Everything on this page comes from recorded runs on one laptop with a free-tier language model, built <span id="built"></span>. The samples are small. The full tables, the method and the failures are in <code>docs/RESULTS.md</code>.</p>
 </footer>
 
