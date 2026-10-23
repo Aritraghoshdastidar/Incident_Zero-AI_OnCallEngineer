@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Incident Zero</title>
+<style>
+  :root { --bg:#f6f7f9; --card:#fff; --ink:#15181d; --mute:#667085; --line:#e4e7ec; --ok:#067647; --warn:#b54708;
+          --bad:#b42318; --accent:#175cd3; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0f1318; --card:#171c23; --ink:#e8ebf0; --mute:#98a2b3;
+          --line:#2a313b; --ok:#47cd89; --warn:#fdb022; --bad:#f97066; --accent:#84adff; } }
+  body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.5 system-ui, sans-serif; }
+  main { max-width:980px; margin:0 auto; padding:20px 16px 60px; }
+  header { display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; }
+  h1 { font-size:20px; margin:0; } h2 { font-size:14px; text-transform:uppercase; letter-spacing:.06em; color:var(--mute); }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px 16px; margin:10px 0; }
+  .row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between; }
+  .pill { font-size:12px; padding:2px 9px; border-radius:99px; border:1px solid var(--line); }
+  .recovered { color:var(--ok); } .rolled_back,.rejected { color:var(--bad); }
+  .awaiting_approval,.needs_review { color:var(--warn); }
+  pre { white-space:pre-wrap; background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:10px; font-size:13px; }
+  button { font:inherit; padding:7px 14px; border-radius:8px; border:1px solid var(--line); background:var(--card);
+           color:var(--ink); cursor:pointer; }
+  button.approve { background:var(--ok); color:#fff; border-color:var(--ok); }
+  button.reject { color:var(--bad); border-color:var(--bad); }
+  button.kill { background:var(--bad); color:#fff; border-color:var(--bad); }
+  .muted { color:var(--mute); font-size:13px; } .timeline span { display:inline-block; margin:2px 6px 2px 0; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Incident Zero <span class="muted">AI on-call engineer</span></h1>
+    <div><span id="ks" class="pill"></span> <button id="kbtn" class="kill"></button></div>
+  </header>
+  <h2>Awaiting approval</h2><div id="pending"></div>
+  <h2>Incidents</h2><div id="incidents"></div>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const t = ts => new Date(ts * 1000).toLocaleTimeString();
+async function j(url, opt) { const r = await fetch(url, opt); return r.json(); }
+async function decide(id, approve) {
+  await j('/api/decision/' + encodeURIComponent(id), {method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({approve})}); refresh();
+}
+async function toggleKill() {
+  const s = await j('/api/killswitch');
+  await j('/api/killswitch', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({engage: !s.engaged})});
+  refresh();
+}
+$('kbtn').onclick = toggleKill;
+async function refresh() {
+  try {
+    const [ks, pend, inc] = await Promise.all([j('/api/killswitch'), j('/api/pending'), j('/api/incidents')]);
+    $('ks').textContent = ks.engaged ? 'Kill switch ENGAGED: all actions blocked' : 'Kill switch released';
+    $('kbtn').textContent = ks.engaged ? 'Release kill switch' : 'Engage kill switch';
+    $('pending').innerHTML = pend.length ? pend.map(p => `
+      <div class="card"><div class="row"><strong>${esc(p.incident_id)}</strong>
+        <span class="pill awaiting_approval">risk: ${esc(p.risk)}</span></div>
+        <pre>${esc(p.rendered)}</pre>
+        <button class="approve" onclick="decide('${esc(p.incident_id)}', true)">Approve and run</button>
+        <button class="reject" onclick="decide('${esc(p.incident_id)}', false)">Reject</button></div>`).join('')
+      : '<p class="muted">Nothing waiting.</p>';
+    $('incidents').innerHTML = inc.length ? inc.map(i => `
+      <div class="card"><div class="row"><strong>${esc(i.incident_id)}</strong>
+        <span class="pill ${esc(i.status)}">${esc(i.status.replace('_',' '))}</span></div>
+        <div>${esc(i.root_cause || 'No diagnosis recorded')}</div>
+        <div class="muted">confidence ${esc(i.confidence)} · grounding ${esc(i.grounding)} · opened ${t(i.opened)}</div>
+        <div class="timeline muted">${i.events.map(e => `<span>${t(e.ts)} ${esc(e.event)}</span>`).join('')}</div></div>`).join('')
+      : '<p class="muted">No incidents yet.</p>';
+  } catch (e) { /* server restarting: try again on the next tick */ }
+}
+refresh(); setInterval(refresh, 2000);
+</script>
+</body>
+</html>
