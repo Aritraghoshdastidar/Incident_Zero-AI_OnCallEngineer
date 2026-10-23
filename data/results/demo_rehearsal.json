@@ -1,0 +1,45 @@
+{
+ "diagnosis": {
+  "incident_id": "inc-6b84aecc",
+  "summary": "Customers cannot complete payment at checkout because the paymentFailure feature flag is set to 100%, causing payment charge requests to fail with invalid token errors.",
+  "top": {
+   "root_cause": "Fault-injection feature flag paymentFailure is enabled at 100%.",
+   "service": "payment",
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "kind": "flag",
+     "ref": "paymentFailure",
+     "summary": "paymentFailure flag is currently set to 100%",
+     "window": null
+    },
+    {
+     "kind": "log",
+     "ref": "84f768e3a066f41bd3d32ac669be9bce",
+     "summary": "Payment request failed. Invalid token.",
+     "window": null
+    }
+   ]
+  },
+  "alternatives": [],
+  "abstain": false,
+  "abstain_reason": null,
+  "proposed_action": {
+   "runbook_id": "disable_flag",
+   "params": {
+    "flag": "paymentFailure"
+   },
+   "rationale": "Turn off the paymentFailure feature flag to allow payment charge requests to succeed."
+  },
+  "grounding": 1.0,
+  "ungrounded_refs": []
+ },
+ "remediation": {
+  "status": "recovered",
+  "residual_errors": [],
+  "entrypoint_anomalies": [],
+  "latency_ok": true,
+  "worse": false
+ },
+ "audit_chain_intact": true
+}
