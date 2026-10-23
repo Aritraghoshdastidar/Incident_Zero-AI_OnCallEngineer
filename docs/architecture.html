@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Incident Zero Architecture</title>
+<style>
+  :root { --bg:#ffffff; --ink:#15181d; --mute:#5b6472; --line:#c9d0da; --box:#f4f6f9; --eyes:#e3effd; --brain:#efe7fb;
+          --safe:#fdeede; --hands:#e2f5e9; --accent:#175cd3; --bad:#b42318; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0f1318; --ink:#e8ebf0; --mute:#98a2b3; --line:#323a46; --box:#171c23;
+          --eyes:#16263b; --brain:#251d38; --safe:#38281a; --hands:#17301f; --accent:#84adff; --bad:#f97066; } }
+  body { margin:0; background:var(--bg); color:var(--ink); font:14px/1.45 system-ui, sans-serif; }
+  main { max-width:1100px; margin:0 auto; padding:20px 16px 28px; }
+  h1 { font-size:22px; margin:0 0 2px; } .sub { color:var(--mute); margin:0 0 14px; }
+  svg { width:100%; height:auto; display:block; }
+  svg text { fill:var(--ink); font:12.5px system-ui, sans-serif; }
+  svg .t { font-weight:600; } svg .m { fill:var(--mute); font-size:11px; }
+  .box { stroke:var(--line); stroke-width:1.2; }
+  .arrow { stroke:var(--mute); stroke-width:1.5; fill:none; marker-end:url(#ah); }
+  .dash { stroke:var(--mute); stroke-width:1.2; stroke-dasharray:4 4; fill:none; marker-end:url(#ah); }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:10px; margin-top:14px; }
+  .grid div { border:1px solid var(--line); border-radius:8px; padding:9px 12px; background:var(--box); }
+  .grid b { display:block; margin-bottom:2px; }
+  @media print { body { font-size:12px; } main { padding:0; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>Incident Zero: an AI on-call engineer you can trust</h1>
+  <p class="sub">Alert in, evidence-cited root cause, human-approved fix from an allowlist, verified recovery, tamper-evident audit.</p>
+
+  <svg viewBox="0 0 1080 430" role="img" aria-label="Architecture: telemetry to detectors to LLM to grounding to policy to human approval to execution to verification">
+    <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="var(--mute)"/></marker></defs>
+
+    <!-- lane labels -->
+    <text class="m" x="20" y="18">EYES: read-only, untrusted data</text>
+    <text class="m" x="290" y="18">BRAIN: reasoning</text>
+    <text class="m" x="600" y="18">SAFETY: deterministic gates</text>
+    <text class="m" x="850" y="18">HANDS: act and verify</text>
+
+    <!-- eyes -->
+    <rect class="box" x="20" y="30" width="215" height="260" rx="10" fill="var(--eyes)"/>
+    <text class="t" x="32" y="54">Telemetry</text>
+    <text x="32" y="78">Prometheus metrics</text><text x="32" y="98">Jaeger traces (span-level time)</text>
+    <text x="32" y="118">Container logs / OpenSearch</text><text x="32" y="138">Container state (stopped, OOM,</text>
+    <text x="32" y="154">restarts, CPU limits)</text><text x="32" y="178">Feature-flag / config state</text>
+    <text class="m" x="32" y="204">hidden in "blind" evaluation</text>
+    <text class="m" x="32" y="262">Everything here is DATA, never</text><text class="m" x="32" y="277">instructions</text>
+
+    <!-- detectors -->
+    <rect class="box" x="270" y="30" width="215" height="115" rx="10" fill="var(--brain)"/>
+    <text class="t" x="282" y="54">Signal detectors</text>
+    <text x="282" y="76">Metric anomalies vs baseline</text><text x="282" y="94">Novelty-ranked error signatures</text>
+    <text x="282" y="112">Resource / Kafka-lag change</text><text class="m" x="282" y="132">noise tagged pre_existing</text>
+
+    <rect class="box" x="270" y="165" width="215" height="125" rx="10" fill="var(--brain)"/>
+    <text class="t" x="282" y="189">LLM investigator</text>
+    <text x="282" y="211">Reasons over the evidence</text><text x="282" y="229">bundle + up to 4 drill-downs</text>
+    <text x="282" y="247">Hypotheses, confidence,</text><text x="282" y="265">abstains when unsure</text>
+
+    <!-- grounding -->
+    <rect class="box" x="520" y="165" width="200" height="125" rx="10" fill="var(--safe)"/>
+    <text class="t" x="532" y="189">Grounding check</text>
+    <text x="532" y="211">Every cited trace id / flag /</text><text x="532" y="229">log ref must exist in the data</text>
+    <text x="532" y="247">the model saw; else confidence</text><text x="532" y="265">is demoted</text>
+
+    <!-- policy -->
+    <rect class="box" x="520" y="30" width="200" height="115" rx="10" fill="var(--safe)"/>
+    <text class="t" x="532" y="54">Policy engine</text>
+    <text x="532" y="76">LLM emits only runbook id +</text><text x="532" y="94">typed params (never shell)</text>
+    <text x="532" y="112">Allowlist, closed value sets,</text><text x="532" y="130">risk tiers, kill switch</text>
+
+    <!-- human + execute -->
+    <rect class="box" x="755" y="30" width="300" height="70" rx="10" fill="var(--hands)"/>
+    <text class="t" x="767" y="54">Decision card, then human approval</text>
+    <text x="767" y="74">Evidence, command, rollback shown.</text><text x="767" y="90">No answer = reject (fail closed).</text>
+
+    <rect class="box" x="755" y="115" width="300" height="60" rx="10" fill="var(--hands)"/>
+    <text class="t" x="767" y="139">Dry run, then execute runbook</text><text x="767" y="159">Exact pre-change state recorded</text>
+
+    <rect class="box" x="755" y="190" width="300" height="100" rx="10" fill="var(--hands)"/>
+    <text class="t" x="767" y="214">Verify recovery</text>
+    <text x="767" y="234">Poll until consecutive clean checks</text><text x="767" y="252">with traffic still flowing</text>
+    <text x="767" y="270">Not recovered: roll back exactly</text>
+
+    <!-- arrows -->
+    <path class="arrow" d="M235,90 L270,90"/><path class="arrow" d="M377,145 L377,165"/>
+    <path class="arrow" d="M485,227 L520,227"/><path class="arrow" d="M620,165 L620,145"/>
+    <path class="arrow" d="M720,65 L755,65"/><path class="arrow" d="M905,100 L905,115"/>
+    <path class="arrow" d="M905,175 L905,190"/>
+    <path class="dash" d="M235,200 C250,200 250,215 270,215"/>
+
+    <!-- audit bar -->
+    <rect class="box" x="20" y="320" width="1035" height="46" rx="10" fill="var(--box)"/>
+    <text class="t" x="34" y="340">Hash-chained audit log</text>
+    <text x="34" y="357">bundle, tool calls, diagnosis, card, approver, dry run, execution, verification, rollback: tampering breaks the chain.
+      Incident report is generated only from these events.</text>
+    <path class="dash" d="M377,290 L377,320"/><path class="dash" d="M905,290 L905,320"/>
+    <text class="m" x="20" y="400">Operator dashboard: live timeline, Approve / Reject, kill switch.  Evaluation: held-out container faults, paired baseline ablation, injection red team.</text>
+  </svg>
+
+  <div class="grid">
+    <div><b>Evidence over eloquence</b>Deterministic detectors build a compact, novelty-tagged bundle; the model reasons over that, not raw dumps.</div>
+    <div><b>Safe by construction</b>The model cannot write commands. A deterministic policy engine and a human gate stand between any idea and any action.</div>
+    <div><b>Honest by design</b>Cited evidence is verified, weak evidence means abstain, and results report failures next to successes.</div>
+  </div>
+</main>
+</body>
+</html>
