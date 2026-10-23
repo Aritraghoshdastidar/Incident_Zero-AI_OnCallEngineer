@@ -1,0 +1,14 @@
+id: disable_flag
+description: Turn a fault-injection feature flag back to its "off" variant (flagd).
+risk: low
+requires_approval: true
+params:
+  flag:
+    type: str
+    allowed: [adFailure, adHighCpu, adManualGc, cartFailure, emailMemoryLeak, imageSlowLoad,
+              kafkaConsumerDead, kafkaQueueProblems, paymentFailure, paymentUnreachable,
+              productCatalogFailure, productCatalogLockContention, recommendationCacheFailure,
+              failedReadinessProbe, intlShippingSlowdown, loadGeneratorFloodHomepage]
+argv: ["python", "-m", "tools.flagctl", "set", "{flag}", "off"]
+dry_run_argv: ["python", "-m", "tools.flagctl", "show", "{flag}"]
+rollback_argv: ["python", "-m", "tools.flagctl", "undo", "{flag}"]

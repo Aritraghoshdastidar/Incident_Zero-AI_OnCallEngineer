@@ -1,0 +1,12 @@
+id: start_service
+description: Start a stopped demo container (docker start).
+risk: medium
+requires_approval: true
+params:
+  service:
+    type: str
+    allowed: [valkey-cart, product-catalog, cart, checkout, currency, email, payment, quote,
+              recommendation, shipping, ad, frontend, kafka, astronomy-db, flagd, image-provider]
+argv: ["docker", "start", "{service}"]
+dry_run_argv: ["docker", "ps", "-a", "--filter", "name=^{service}$"]
+rollback_argv: ["docker", "stop", "{service}"]

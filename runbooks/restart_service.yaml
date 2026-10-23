@@ -1,0 +1,11 @@
+id: restart_service
+description: Restart one demo container with docker compose.
+risk: medium
+requires_approval: true
+params:
+  service:
+    type: str
+    allowed: [ad, cart, checkout, currency, email, payment, product-catalog, quote,
+              recommendation, shipping, fraud-detection, accounting, frontend]
+argv: ["docker", "compose", "-f", "otel-demo/compose.yaml", "restart", "{service}"]
+dry_run_argv: ["docker", "compose", "-f", "otel-demo/compose.yaml", "ps", "{service}"]

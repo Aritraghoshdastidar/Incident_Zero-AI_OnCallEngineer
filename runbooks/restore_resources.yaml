@@ -1,0 +1,10 @@
+id: restore_resources
+description: Restore a container's CPU/memory limits to their original (baseline) values and start it if it was killed.
+risk: medium
+requires_approval: true
+params:
+  service:
+    type: str
+    allowed: [recommendation, currency, checkout, cart, ad, payment, product-catalog, shipping, email, quote, frontend]
+argv: ["python", "-m", "tools.dockerctl", "restore", "{service}"]
+dry_run_argv: ["docker", "ps", "-a", "--filter", "name=^{service}$"]
