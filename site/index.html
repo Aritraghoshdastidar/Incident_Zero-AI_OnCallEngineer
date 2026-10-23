@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Incident Zero</title>
+<meta name="description" content="An AI on-call engineer that shows its evidence and waits for your approval. Replay real recorded incidents and test its safety rules.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Incident Zero: an AI on-call engineer you can trust">
+<meta property="og:description" content="Replay real recorded incidents on their real metrics, approve or reject the fix yourself, and try to trick the safety rules.">
+<meta property="og:image" content="https://aritraghoshdastidar.github.io/Incident_Zero-AI_OnCallEngineer/social-preview.png">
+<meta property="og:url" content="https://aritraghoshdastidar.github.io/Incident_Zero-AI_OnCallEngineer/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://aritraghoshdastidar.github.io/Incident_Zero-AI_OnCallEngineer/social-preview.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400..700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="mast">
+  <a class="wordmark" href="#top">Incident Zero</a>
+  <nav aria-label="Sections">
+    <a href="#replay">Replay an incident</a>
+    <a href="#noise">The loudest error</a>
+    <a href="#trick">Try to trick it</a>
+    <a href="#scorecard">Scorecard</a>
+    <a href="#run">Run it</a>
+  </nav>
+</header>
+
+<main id="top">
+
+<section class="opening" aria-labelledby="h1">
+  <h1 id="h1">Pick a failure. Watch the agent find it, then approve the fix or stop it.</h1>
+  <p class="lede">An AI on-call engineer for the OpenTelemetry Demo shop. It reads metrics, traces and container state, names the cause with its evidence, and can only act through a short list of approved runbooks. Nothing runs until a person says so.</p>
+</section>
+
+<section id="replay" class="replay" aria-labelledby="replay-h">
+  <h2 id="replay-h" class="sr">Replay an incident</h2>
+
+  <div class="bench">
+    <div class="picker" role="radiogroup" aria-label="Choose a failure to replay">
+      <p class="picker-note">Seven recordings from a live run. The lines on the chart are the shop's own metrics.</p>
+      <div id="picker-list"></div>
+    </div>
+
+    <div class="recorder">
+      <div class="alertbar">
+        <span class="alert-text" id="alert-text"></span>
+      </div>
+
+      <p class="legend" id="legend"></p>
+
+      <div class="roll">
+        <svg id="chart" role="img" aria-label="Strip chart of the recorded incident" viewBox="0 0 1000 380" preserveAspectRatio="xMidYMid meet"></svg>
+      </div>
+
+      <div class="transport" role="group" aria-label="Replay controls">
+        <button id="btn-play" class="btn primary" type="button">Play</button>
+        <button id="btn-step" class="btn" type="button">Next step</button>
+        <button id="btn-restart" class="btn" type="button">Start over</button>
+        <label class="speed">Speed
+          <select id="speed">
+            <option value="60">60 times faster</option>
+            <option value="30" selected>30 times faster</option>
+            <option value="10">10 times faster</option>
+            <option value="1">Real time</option>
+          </select>
+        </label>
+        <span id="clock" class="clock" aria-live="off">0:00</span>
+      </div>
+
+      <div class="narrate">
+        <p id="narration" class="now" aria-live="polite">Press Play. The agent starts when the alert fires.</p>
+      </div>
+
+      <div id="slip-slot"></div>
+
+      <div id="truth" class="truth" hidden></div>
+
+      <ol id="log" class="log" aria-label="What the agent did"></ol>
+    </div>
+  </div>
+
+  <p class="fine">Timings come from the recorded runs. In these recordings a test script approved the fix; here you do. The injection time is inferred from the test harness, which waits a fixed time after breaking something.</p>
+</section>
+
+<section id="noise" class="noise" aria-labelledby="noise-h">
+  <div class="text">
+    <h2 id="noise-h">Why it ignored the loudest error</h2>
+    <p>On the first blind test the agent blamed an error that fired 19 times and missed the real fault, which fired twice. The loud one was background noise that was there before anything broke. Counting is not the same as noticing.</p>
+    <p>The agent now compares each error against the minutes before the incident. Errors that were already there are marked as old and ranked last. Sort the same recorded evidence both ways.</p>
+  </div>
+  <div class="ledger-wrap">
+    <div class="sortbar" role="group" aria-label="Sort the errors">
+      <button class="chip is-on" type="button" data-sort="count" aria-pressed="true">Sort by how often</button>
+      <button class="chip" type="button" data-sort="novel" aria-pressed="false">Sort by what is new</button>
+    </div>
+    <table class="ledger" id="noise-table">
+      <thead><tr><th scope="col">Error</th><th scope="col" class="num">Times</th><th scope="col">Was it there before?</th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <p class="fine">Recorded from the first cart-failure test, before the fault had been identified.</p>
+  </div>
+</section>
+
+<section id="trick" class="trick" aria-labelledby="trick-h">
+  <div class="text">
+    <h2 id="trick-h">Try to trick it</h2>
+    <p>The model can be fooled by text hidden in a log line. So it never gets to run anything. It can only name a runbook and its settings, and a plain program checks that against a fixed list.</p>
+    <p>Pretend the model was fooled and proposed something. Send it to the same rules the agent uses and see what happens. The rules here are a copy of the real ones in the Python code.</p>
+  </div>
+
+  <div class="forge">
+    <div class="presets" role="group" aria-label="Example proposals">
+      <p class="label">Start from</p>
+      <div id="preset-list" class="preset-list"></div>
+    </div>
+    <div class="forge-form">
+      <div class="seen" id="seen" hidden>
+        <p class="label">Text planted in a log line</p>
+        <blockquote id="seen-text"></blockquote>
+      </div>
+      <label class="field">Runbook
+        <input id="f-runbook" type="text" list="runbook-ids" autocomplete="off" spellcheck="false">
+        <datalist id="runbook-ids"></datalist>
+      </label>
+      <label class="field">Settings, as JSON
+        <textarea id="f-params" rows="3" spellcheck="false"></textarea>
+      </label>
+      <label class="check"><input id="f-kill" type="checkbox"> Engage the kill switch first</label>
+      <button id="f-send" class="btn primary" type="button">Check against the rules</button>
+    </div>
+    <div class="verdict" id="verdict" aria-live="polite">
+      <p class="verdict-empty">The verdict appears here.</p>
+    </div>
+  </div>
+  <p class="fine forge-fine" id="forge-fine"></p>
+</section>
+
+<section id="scorecard" class="scorecard" aria-labelledby="score-h">
+  <div class="text">
+    <h2 id="score-h">What the recordings show</h2>
+    <p id="score-lede"></p>
+  </div>
+  <div class="ledger-wrap">
+    <table class="ledger score" id="score-table">
+      <thead><tr><th scope="col">Failure</th><th scope="col">Plain LLM reading raw logs</th><th scope="col">This agent</th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <p class="key" id="score-key"></p>
+  </div>
+  <div class="misses text">
+    <h3>Where it fell short</h3>
+    <ul id="misses"></ul>
+  </div>
+</section>
+
+<section id="run" class="run" aria-labelledby="run-h">
+  <div class="text">
+    <h2 id="run-h">Run it yourself</h2>
+    <p>You need Docker Desktop, Python 3.11 or newer, and a free Gemini API key.</p>
+  </div>
+  <div class="code-wrap">
+    <pre id="code"><code># 1. start the shop with its monitoring stack
+git clone https://github.com/open-telemetry/opentelemetry-demo otel-demo
+cd otel-demo
+docker compose -f compose.yaml -f compose.full.yaml -f compose.observability.yaml -f compose.extras.yaml up -d
+cd ..
+
+# 2. install the agent
+python -m venv .venv
+.venv/Scripts/pip install -e ".[dev]"
+echo GEMINI_API_KEY=your-key > .env
+
+# 3. check it, then break something
+.venv/Scripts/python -m pytest
+.venv/Scripts/python -m tools.flagctl set paymentFailure 100%
+.venv/Scripts/python -m uvicorn ui.app:app --port 8765      # approvals appear here
+.venv/Scripts/python -m agent.run "Customers cannot complete payment at checkout" --dashboard</code></pre>
+    <button id="copy" class="btn" type="button">Copy commands</button>
+  </div>
+</section>
+
+</main>
+
+<footer class="foot">
+  <p>Everything on this page comes from recorded runs on one laptop with a free-tier language model, built <span id="built"></span>. The samples are small. The full tables, the method and the failures are in <code>docs/RESULTS.md</code>.</p>
+</footer>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
