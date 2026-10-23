@@ -1,0 +1,29 @@
+# secrets and local environment
+.env
+.venv/
+
+# caches and build artifacts
+__pycache__/
+.pytest_cache/
+.hypothesis/
+.ruff_cache/
+*.egg-info/
+
+# the OpenTelemetry Demo is cloned separately (see README)
+otel-demo/
+
+# runtime state: fault-injection snapshots, approvals in flight, kill switch, raw audit logs, run logs
+.killswitch*
+data/audit/
+data/pending/
+data/decisions/
+data/flags.baseline.json
+data/flags.prev.json
+data/docker.baseline.json
+*.log
+
+# personal walkthrough: kept locally, not published
+docs/Incident-Zero-Walkthrough.pdf
+docs/walkthrough.src.html
+docs/walkthrough.html
+docs/build_walkthrough.py
